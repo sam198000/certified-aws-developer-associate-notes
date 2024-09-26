@@ -1,8 +1,14 @@
 # IAM: Identity and Access Management
 
-When accessing AWS, the root account should **never** be used. Users must be created with the proper permissions. IAM is central to AWS.
+This is a **Global service**
+
+Root account is created by default.
+When accessing AWS, the root account should **never** be used or shared. Users must be created with the proper permissions. IAM is central to AWS.
 - Users: A physical person
 - Groups: Functions (admin, devops) Teams (engineering, design) which contain a group of users
+          Groups can only contain users, not the other groups.
+          It's not necessary that a user should belong to a group.(not a best practice) 
+          In the same way a user can also belong to multiple groups.
 - Roles: Internal usage within AWS resources
 - Policies (JSON documents): Defines what each of the above can and cannot do. **Note**: IAM has predefined managed policies.
 
@@ -13,6 +19,17 @@ When accessing AWS, the root account should **never** be used. Users must be cre
 ### Policies
 IAM policies define permissions for an action regardless of the method that you use to perform the operation.
 
+### IAM Policies Structure
+IAM Policies consists of 
+  -Version: policy language version, (Always include) "2024-09-25"
+  -Id: an identifier for the policy (optional)
+  -Statement: one or more individual statements (required)
+              -Sid: an identifier for the statement(optional)
+              -Effect: whether the statement allows or denies access(Allow,Deny)
+              -Principal: account/user/role to which this policy applied to
+              -Action: list of actions this policy allows or denies
+              -Resource: list of resources to which the actions are applied to
+    
 #### Policy types
 - Identity-based policies
   - Attach managed and inline policies to IAM identities (users, groups to which users belong, or roles). Identity-based policies grant permissions to an identity.
@@ -40,7 +57,33 @@ IAM policies define permissions for an action regardless of the method that you 
     - Some AWS CLI commands (not all) contain `--dry-run` option to simulate API calls. This can be used to test permissions.
     - If the command is successful, you'll get the message: `Request would have succeeded, but DryRun flag is set`
     - Otherwise, you'll be getting the message: `An error occurred (UnauthorizedOperation) when calling the {policy_name} operation`
-  
+
+#### IAM - Password Policy
+-Strong password = higher security for your account
+-In aws, you can setup a password policy:
+    -Set a minimum password length
+    -Require specific character types
+        -including uppercase letters
+        -lowercase letters
+        -numbers
+        -non-alphanumeric characters
+    -Allow all IAM users to change theeir own passwords
+    -Require users to change their password after some time(password expiration)
+    -prevent password re-use
+    
+  ### MFA - Multi Factor Authentication
+  -Users have access to your account and can possibly change configurations or delete resources in your aws account
+  -*We have to protect our Root Accounta and IAM users*
+  - MFA = password you know + security device you own
+  - main benifit **if a password is stolen or hacked, the account is not compromised**
+    example: -virtual MFA device -- support for multiple token on a single device
+                  -google authenticator(phone only)
+                  -authy(phone only)
+             -universal 2nd factor (U2F) security key -- support for multiple root and IAM users using a single security key
+                  -YubiKey by Yubico(3rd party)(physical)
+             -Hadware Key Fob MFA Device --provided by Gemalto(3rd party)
+             -Hadware Key Fob MFA Device for AWS GovCloud(US) --provided by SurePassID(3rd party)
+    
 #### Best practices:
 - One IAM User per person **ONLY**
 - One IAM Role per Application
